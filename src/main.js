@@ -9,11 +9,14 @@ import axios from 'axios'
 import 'echarts-liquidfill'
 import VueRouter from 'vue-router'
 import ElementUi from 'element-ui';
+import VueAxios from "vue-axios";
 
 Vue.prototype.$echarts = echarts
 Vue.config.productionTip = false
 
 Vue.prototype.axios = axios
+
+Vue.use(VueAxios,axios)
 
 Vue.use(dataV)
 

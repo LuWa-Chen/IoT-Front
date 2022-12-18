@@ -11,6 +11,7 @@ let chart = null
 let dayList=['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18',
 '19','20','21','22','23','24','25','26','27','28','29','30','31']
 let titleList=['感染人数','治愈人数','死亡人数']
+let dataList=[]
 export default {
   props: {
     data: {
@@ -21,7 +22,7 @@ export default {
           place:'',
           year:0,
           month:0,
-          valueList: [[]]
+          valueList: []
         }
       }
     }
@@ -32,10 +33,23 @@ export default {
         chart.dispose()
       }
       chart = this.$echarts.init(this.$refs.InfectionMonthStateChart)
+      this.insertData()
       this.setOptions()
     },
+    insertData(){
+      dataList=[]
+      let i=0;
+      for(i;i<this.data.valueList.length;i++){
+        if(this.data.choice==0)
+        dataList.push(this.data.valueList[i].conformCount);
+        else if(this.data.choice==1)
+        dataList.push(this.data.valueList[i].curedCount);
+        else if(this.data.choice==2)
+        dataList.push(this.data.valueList[i].deadCount);
+      }
+    },
     setOptions() {
-      var salvProValue = this.data.valueList[this.data.choice];
+      var salvProValue = dataList;
       var salvProMax = [];
       for (let i = 0; i < salvProValue.length; i++) {
         salvProMax.push(salvProValue[500000])
@@ -56,7 +70,7 @@ export default {
          }
        },
         xAxis: {
-          data: dayList.slice(0,this.data.valueList[this.data.choice].length),
+          data: dayList.slice(0,dataList.length),
           axisLabel: //柱状图内字样
           {
             inside: true,
@@ -113,7 +127,7 @@ export default {
               valueFormatter: function (value) {
               return value + ' 人';
             }},
-            data: this.data.valueList[this.data.choice]
+            data: dataList
           }
        ]
       }
@@ -124,7 +138,7 @@ export default {
          type: 'dataZoom',
          startValue: dayList[Math.max(params.dataIndex - zoomSize / 2, 0)],
          endValue:
-           dayList[Math.min(params.dataIndex + zoomSize / 2, this.data.valueList[this.data.choice].length - 1)]
+           dayList[Math.min(params.dataIndex + zoomSize / 2, dataList.length - 1)]
         });
       });
       option&chart.setOption(option)
@@ -134,6 +148,7 @@ export default {
     data: {
       handler(newList, oldList) {
         if (oldList != newList) {
+          this.insertData()
           this.setOptions()
         }
       },
