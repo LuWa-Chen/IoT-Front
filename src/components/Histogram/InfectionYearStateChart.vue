@@ -7,9 +7,10 @@
 <script>
 
 import * as echarts from 'echarts'
-let monthList= ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月',]
+let monthList= ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
 let chart = null
 let titleList=['感染人数','治愈人数','死亡人数']
+let dataList=[]
 export default {
   props: {
     data: {
@@ -19,7 +20,7 @@ export default {
           choice:0,
           place:'',
           year:0,
-          valueList: [[]],
+          valueList: [],
           forecastList:[],
         }
       }
@@ -30,8 +31,22 @@ export default {
       if (null != chart && undefined != chart) {
         chart.dispose()
       }
-      chart = this.$echarts.init(this.$refs.InfectionYearStateChart)
+      chart = this.$echarts.init(this.$refs.InfectionYearStateChart);
+      console.log(this.data.valueList[1])
+      this.insertData();
       this.setOptions()
+    },
+    insertData(){
+      dataList=[]
+      let i=0;
+      for(i;i<this.data.valueList.length;i++){
+        if(this.data.choice==0)
+        dataList.push(this.data.valueList[i].conformCount);
+        else if(this.data.choice==1)
+        dataList.push(this.data.valueList[i].curedCount);
+        else if(this.data.choice==2)
+        dataList.push(this.data.valueList[i].deadCount);
+      }
     },
     setOptions() {
       var salvProValue = monthList;
@@ -120,7 +135,7 @@ export default {
               valueFormatter: function (value) {
               return value + ' 人';
             }},
-            data: this.data.valueList[this.data.choice]
+            data: dataList
           },
           {
             name: '预测',
@@ -141,7 +156,7 @@ export default {
          type: 'dataZoom',
          startValue: monthList[Math.max(params.dataIndex - zoomSize / 2, 0)],
          endValue:
-           monthList[Math.min(params.dataIndex + zoomSize / 2, this.data.valueList[this.data.choice].length - 1)]
+           monthList[Math.min(params.dataIndex + zoomSize / 2, dataList.length - 1)]
         });
       });
       option&chart.setOption(option)
@@ -151,6 +166,7 @@ export default {
     data: {
       handler(newList, oldList) {
         if (oldList != newList) {
+          this.insertData()
           this.setOptions()
         }
       },
