@@ -1,21 +1,32 @@
 <template>
   <div>
-    <div class="demo">
+    <div class="nav">
     <InfectionYearStateChart
       ref="StateChart1"
       :data="dataList1"
-      style="width: 100%; height: 380px"
+      style="width:500px;height:380px"
     />
-    </div>
-    <div class="demo">
     <InfectionMonthStateChart
       ref="StateChart2"
       :data="dataList2"
-      style="width: 100%; height: 380px"
+      style="width:500px;height:380px"
     />
     </div>
-    <button @click="getMonthInfo">整月按钮</button>
-    <button @click="getYearInfo">整年按钮</button>
+    <div class="left">
+      <button @click="search(1)">查看感染人数</button>
+      <button @click="search(2)">查看治愈人数</button>
+      <button @click="search(3)">查看死亡人数</button>
+    </div>
+      <div class="right">
+      <button @click="search1(1)">查看感染人数</button>
+      <button @click="search1(2)">查看治愈人数</button>
+      <button @click="search1(3)">查看死亡人数</button>
+    </div>
+    <div class="nav">
+      <button @click="getYearInfo">整年按钮</button>
+      <button @click="getMonthInfo">整月按钮</button>
+      <button @click="getForecastInfo">预测按钮</button>
+    </div>
   </div>
 </template>
 <script>
@@ -27,20 +38,19 @@ var client = null
 //用户配置
 const options = {
     connectTimeout: 4000,
-     reconnectPeriod: 1000,
-    clientId: 'mqtt_114514', 
+    reconnectPeriod: 1000,
+    clientId: 'mqtt_1', 
     username: 'lilei', 
     password: '123456',  
     clean: true
 }
 //MQTT地址和主题
 var mqttUrl='ws://123.60.110.3:8000/mqtt';
-var topic="test/";
 export default {
 data(){
         return{
           dataList1: {
-            choice:1,//选择
+            choice:1,//选择,0总人数，1治愈，2死亡
             place:'中国',//地区
             year:2020,
             valueList:
@@ -48,64 +58,112 @@ data(){
             "conformCount": 364,
             "curedCount": 342,
             "deadCount": 0,
-            "time": "2020-11-11"
+            "time": "2020-01-03"
         },
         {
             "conformCount": 364,
             "curedCount": 342,
             "deadCount": 0,
-            "time": "2020-11-12"
+            "time": "2020-02-12"
         },
         {
             "conformCount": 364,
             "curedCount": 345,
             "deadCount": 0,
-            "time": "2020-11-13"
+            "time": "2020-03-13"
         },
         {
             "conformCount": 364,
             "curedCount": 345,
             "deadCount": 0,
-            "time": "2020-11-14"
+            "time": "2020-04-14"
         },
         {
             "conformCount": 369,
             "curedCount": 345,
             "deadCount": 0,
-            "time": "2020-11-15"
+            "time": "2020-05-15"
         },
         {
             "conformCount": 375,
             "curedCount": 353,
             "deadCount": 0,
-            "time": "2020-11-16"
+            "time": "2020-06-16"
         },
         {
             "conformCount": 375,
             "curedCount": 355,
             "deadCount": 0,
-            "time": "2020-11-17"
+            "time": "2020-07-17"
         },
         {
             "conformCount": 377,
             "curedCount": 355,
             "deadCount": 0,
-            "time": "2020-11-18"
+            "time": "2020-08-18"
         },
         {
             "conformCount": 378,
             "curedCount": 356,
             "deadCount": 0,
-            "time": "2020-11-19"
+            "time": "2020-09-19"
         },
         {
             "conformCount": 378,
             "curedCount": 357,
             "deadCount": 0,
-            "time": "2020-11-20"
-        }
-    ],
-            forecastList:[]
+            "time": "2020-12-20"
+        }],
+            forecastList:[{
+            "conformCount": 364,
+            "curedCount": 342,
+            "deadCount": 0,
+        },
+        {
+            "conformCount": 364,
+            "curedCount": 342,
+            "deadCount": 0,
+        },
+        {
+            "conformCount": 364,
+            "curedCount": 345,
+            "deadCount": 0,
+        },
+        {
+            "conformCount": 364,
+            "curedCount": 345,
+            "deadCount": 0,
+        },
+        {
+            "conformCount": 369,
+            "curedCount": 345,
+            "deadCount": 0,
+        },
+        {
+            "conformCount": 375,
+            "curedCount": 353,
+            "deadCount": 0,
+        },
+        {
+            "conformCount": 375,
+            "curedCount": 355,
+            "deadCount": 0,
+        },
+        {
+            "conformCount": 377,
+            "curedCount": 355,
+            "deadCount": 0,
+        },
+        {
+            "conformCount": 378,
+            "curedCount": 356,
+            "deadCount": 0,
+        },
+        {
+            "conformCount": 378,
+            "curedCount": 357,
+            "deadCount": 0,
+        }]
           },
           dataList2:{
             choice:0,
@@ -186,6 +244,13 @@ data(){
           length: 0,
           provinceName: null,
           time: "2020"
+        },
+        sendForecastInfo:{
+          countryName: "不丹",
+          cityName: null,
+          length: 0,
+          provinceName: null,
+          time: "2022"
         }
     }
 },
@@ -202,6 +267,54 @@ data(){
     }
     },
     methods:{
+      search(i){
+        if(i==1)
+        this.dataList1.choice=0;
+        else if(i==2)
+        this.dataList1.choice=1;
+        else if(i==3)
+        this.dataList1.choice=2;
+        this.$refs.StateChart1.initChart();
+      },
+      search1(i){
+        if(i==1)
+        this.dataList2.choice=0;
+        else if(i==2)
+        this.dataList2.choice=1;
+        else if(i==3)
+        this.dataList2.choice=2;
+        this.$refs.StateChart2.initChart();
+      },
+      getForecastInfo(){
+        let URL='api/getCountryForecast'
+        let that=this
+        this.axios({
+          method:'post',
+          url:URL,
+          headers:{
+          "Content-Type":"application/json"
+        },
+        transformRequest: [function(data) {
+          data = JSON.stringify(data)
+          return data
+        }],
+        params: {},
+        data: {
+            cityName: that.$store.state.city,
+            countryName: null,
+            length: 0,
+            provinceName: that.$store.state.province,
+            time: "2022"
+        }
+        }).then(function(response){
+        client.publish('forecast/', JSON.stringify(response.data.content), 2, error => {
+        if (!error) {
+          console.log('----> ', '启动发送成功')
+        }
+      })
+        })
+
+      },
       //整月按钮
       //绑定按钮，用来向订阅的主题发送消息以及接受订阅的内容
       getMonthInfo(){
@@ -228,36 +341,38 @@ data(){
         }],
         params: {},
         data: {
-            cityName: that.sendMonthInfo.cityName,
-            countryName: that.sendMonthInfo.countryName,
-            length: that.sendMonthInfo.length,
-            provinceName: that.sendMonthInfo.provinceName,
-            time: that.sendMonthInfo.time
-        } 
+            cityName: that.$store.state.city,
+            countryName: null,
+            length: that.$store.state.length,
+            provinceName: that.$store.state.province,
+            time: that.$store.state.year+"-"+that.$store.state.month+"-1"
+        }
       }).then(function(response) {
         //修改表中的附属数据，包括地点时间等
-
+        console.log(that.$store.state.city)
+        console.log(that.$store.state.province)
+        console.log(that.$store.state.length)
+        console.log(that.$store.state.year+"-"+that.$store.state.month+"-01")
         that.dataList2.place=[]//重置地区名
         if(that.sendMonthInfo.countryName!=null)
           that.dataList2.place+=that.sendMonthInfo.countryName+'-'
-        if(that.sendMonthInfo.provinceName!=null)
-          that.dataList2.place+=that.sendMonthInfo.provinceName+'-'
-        that.dataList2.place+=that.sendMonthInfo.cityName
-        that.dataList2.year=that.sendMonthInfo.time.substring(0,4)//重置年
-        that.dataList2.month=that.sendMonthInfo.time.substring(5,7)
-        if(that.dataList2.month[1]=='-')
-        that.dataList2.month=that.dataList2.month.substring(0,1)//重置月
-      console.log(URL)
+        if(that.$store.state.province!=null)
+          that.dataList2.place+=that.$store.state.province+'-'
+        that.dataList2.place+=that.$store.state.city
+        that.dataList2.year=that.$store.state.year//重置年
+        that.dataList2.month=that.$store.state.month
+        console.log(URL)
       //将后端传入的数据发布到主题
-      client.publish(topic, JSON.stringify(response.data.content), 2, error => {
+      client.publish('test/', JSON.stringify(response.data.content), 2, error => {
         if (!error) {
           console.log('----> ', '启动发送成功')
+          console.log(response.data.content)
         }
       })
     })
     .catch(function(error) {
       console.log(error)
-      console.log(JSON.stringify(that.sendMonthInfo))
+      console.log(JSON.stringify(that.$store.state.country))
     });
       },
       getYearInfo(){
@@ -283,24 +398,28 @@ data(){
         }],
         params: {},
         data: {
-            cityName: that.sendYearInfo.cityName,
-            countryName: that.sendYearInfo.countryName,
-            length: that.sendYearInfo.length,
-            provinceName: that.sendYearInfo.provinceName,
-            time: that.sendYearInfo.time
-        } 
+            cityName: that.$store.state.city,
+            countryName: null,
+            length: parseInt(0),
+            provinceName: that.$store.state.province,
+            time: that.$store.state.year.toString()
+        }
       }).then(function(response) {
         //修改表中的附属数据，包括地点时间等
-
+        console.log(that.$store.state.year.toString()),
+        console.log(0),
+         console.log(that.$store.state.province),
+         console.log(that.$store.state.city),
         that.dataList1.place=[]//重置地区名
-        if(that.sendMonthInfo.countryName!=null)
-          that.dataList1.place+=that.sendMonthInfo.countryName+'-'
-        if(that.sendMonthInfo.provinceName!=null)
-          that.dataList1.place+=that.sendMonthInfo.provinceName+'-'
-        that.dataList1.place+=that.sendMonthInfo.cityName
-        that.dataList1.year=that.sendMonthInfo.time.substring(0,4)//重置年
+        if(that.$store.state.country!=null)
+          that.dataList1.place+=that.$store.state.country+'-'
+        if(that.$store.state.province!=null)
+          that.dataList1.place+=that.$store.state.province+'-'
+        if(that.$store.state.city!=null)
+        that.dataList1.place+=that.$store.state.city
+        that.dataList1.year=that.$store.state.year//重置年
       console.log(response)
-      client.publish(topic, JSON.stringify(response.data.content), 2, error => {
+      client.publish('year/', JSON.stringify(response.data.content), 2, error => {
         if (!error) {
           console.log('----> ', '启动发送成功')
         }
@@ -319,7 +438,21 @@ data(){
       // mqtt连接
       client.on('connect', (e) => {
         console.log(e, "MQTT连接成功")
-        client.subscribe(topic, { qos: 2 }, (error) => {  // qos 为通道
+        client.subscribe('test/', { qos: 2 }, (error) => {  // qos 为通道
+          if (!error) {
+            console.log('消息订阅成功')
+          } else {
+            console.log('消息订阅失败')
+          }
+        })
+        client.subscribe('year/', { qos: 2 }, (error) => {  // qos 为通道
+          if (!error) {
+            console.log('消息订阅成功')
+          } else {
+            console.log('消息订阅失败')
+          }
+        })
+        client.subscribe('forecast/', { qos: 2 }, (error) => {  // qos 为通道
           if (!error) {
             console.log('消息订阅成功')
           } else {
@@ -332,7 +465,13 @@ data(){
         console.log('收到来自', topic, '的消息---->>', message.toString())
         this.mqMsg = message.toString()
         let List=JSON.parse(message)
-        if(List.length<=12)//返回长度<=12，认定为是返回的整年数据
+        if(topic=='forecast/')
+        {
+          this.dataList1.forecastList=List
+          this.$refs.StateChart1.initChart();
+          console.log(this.dataList1.forecastList)
+        }
+        else if(topic=='year/')//返回的整年数据
         {
           this.dataList1.valueList=List
           this.$refs.StateChart1.initChart();
@@ -344,7 +483,7 @@ data(){
           this.$refs.StateChart2.initChart();
           console.log(this.dataList2.valueList)
         }
-      })
+        })
       // 断开发起重连
       client.on('reconnect', (error) => {
         console.log('正在重连:', error)
@@ -362,8 +501,23 @@ data(){
 }
 </script>
 <style>
-.demo {
-  width: 500px;
-  height: 600px;
+.nav {
+  display:flex;
+  flex-direction: row;
+  justify-content: center;
+}
+.left {
+  display:flex;
+  flex-direction: row;
+  justify-content: left;
+  padding-left: 10%;
+
+}
+.right {
+  display:flex;
+  flex-direction: row;
+  justify-content: right;
+  padding-right: 10%;
 }
 </style>
+
