@@ -7,14 +7,18 @@
 <script>
 
 import * as echarts from 'echarts'
-let monthList= ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
+let monthList= ['01','02','03','04','05','06','07','08','09','10','11','12']
 let chart = null
 let titleList=['感染人数','治愈人数','死亡人数']
 let dataList=[]
+let forecastList1=[]
+let forecastList2=[]
+let forecastList3=[]
+let Use_time=''
 export default {
   props: {
     data: {
-      type: Object,
+      type:Object,
       default () {
         return {
           choice:0,
@@ -32,20 +36,51 @@ export default {
         chart.dispose()
       }
       chart = this.$echarts.init(this.$refs.InfectionYearStateChart);
-      console.log(this.data.valueList[1])
+      console.log('传入数据'+this.data.valueList[1].time)
       this.insertData();
       this.setOptions()
     },
     insertData(){
       dataList=[]
-      let i=0;
-      for(i;i<this.data.valueList.length;i++){
+      forecastList1=[]
+      forecastList2=[]
+      forecastList3=[]
+      let i=0,k;
+      let m=0;
+      while(i<12)
+      {
+        if(m<this.data.valueList.length)
+        {
+        Use_time=this.data.valueList[m].time.substring(5,7)
+        if(Use_time==monthList[i])
+        {
         if(this.data.choice==0)
-        dataList.push(this.data.valueList[i].conformCount);
+        dataList.push(this.data.valueList[m].conformCount);
         else if(this.data.choice==1)
-        dataList.push(this.data.valueList[i].curedCount);
+        dataList.push(this.data.valueList[m].curedCount);
         else if(this.data.choice==2)
-        dataList.push(this.data.valueList[i].deadCount);
+        dataList.push(this.data.valueList[m].deadCount);
+        m++
+        i++
+        }
+        else{
+          dataList.push(0)
+          i++
+        }
+        }
+        else
+        {
+        dataList.push(0)
+        i++
+        }
+      }
+      if(this.data.forecastList!=[])
+      {
+        for(k=0;k<this.data.forecastList.length;k++){
+        forecastList1.push(this.data.forecastList[k].conformCount);
+        forecastList2.push(this.data.forecastList[k].curedCount);
+        forecastList3.push(this.data.forecastList[k].deadCount);
+      }
       }
     },
     setOptions() {
@@ -138,14 +173,34 @@ export default {
             data: dataList
           },
           {
-            name: '预测',
+            name: '预测总',
             type: 'line',
             tooltip: {
                 valueFormatter: function (value) {
                 return value + ' 人';
               }
            },
-           data: this.data.forecastList
+           data: forecastList1
+         },
+        {
+            name: '预测治愈',
+            type: 'line',
+            tooltip: {
+                valueFormatter: function (value) {
+                return value + ' 人';
+              }
+           },
+           data: forecastList2
+         },
+        {
+            name: '预测死亡',
+            type: 'line',
+            tooltip: {
+                valueFormatter: function (value) {
+                return value + ' 人';
+              }
+           },
+           data: forecastList3
          }
        ]
       }

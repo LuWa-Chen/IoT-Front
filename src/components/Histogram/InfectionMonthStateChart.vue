@@ -12,6 +12,7 @@ let dayList=['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','
 '19','20','21','22','23','24','25','26','27','28','29','30','31']
 let titleList=['感染人数','治愈人数','死亡人数']
 let dataList=[]
+let timeList=[]
 export default {
   props: {
     data: {
@@ -38,6 +39,7 @@ export default {
     },
     insertData(){
       dataList=[]
+      timeList=[]
       let i=0;
       for(i;i<this.data.valueList.length;i++){
         if(this.data.choice==0)
@@ -46,6 +48,7 @@ export default {
         dataList.push(this.data.valueList[i].curedCount);
         else if(this.data.choice==2)
         dataList.push(this.data.valueList[i].deadCount);
+        timeList.push(this.data.valueList[i].time.substring(8,10));
       }
     },
     setOptions() {
@@ -69,8 +72,15 @@ export default {
            }
          }
        },
+       toolbox: {
+           feature: {
+             dataView: { show: true, readOnly: false },
+             magicType: { show: true, type: ['line', 'bar'] },
+             saveAsImage: { show: true }
+           }
+       },
         xAxis: {
-          data: dayList.slice(0,dataList.length),
+          data: timeList,
           axisLabel: //柱状图内字样
           {
             inside: true,
